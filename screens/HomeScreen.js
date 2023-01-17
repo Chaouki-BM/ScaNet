@@ -2,6 +2,7 @@ import React from 'react'
 import { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Image, } from 'react-native'
 import { Button, Card, Modal, Text, Input } from '@ui-kitten/components';
+import axios from 'axios';
 const HomeScreen = ({ navigation }) => {
     const handePressAdminList = () => {
         navigation.navigate('Admin List');
@@ -16,9 +17,42 @@ const HomeScreen = ({ navigation }) => {
         navigation.navigate('Broken Machine');
     };
     const [MachineInfo, setMachineInfo] = useState({
-        name: '',
-        ip: '',
+
+        NameMachine: '',
+        IpMachine: '',
     });
+
+    const handleAdd = () => {
+        //console.log(loginInfo);
+        // axios({
+        //     method: 'post',
+        //     url: 'http://192.168.1.15:5000/user/login',
+        //     data: loginInfo
+        // }).then((res) => {
+        //     console.log(res.config.result)
+        // }).catch((e) => {
+        //     console.log(e)
+        // });
+
+        axios.post('http://192.168.1.11:5000/Machine/AddMachine', MachineInfo)
+            .then(function (response) {
+                // handle success
+                success = response.data.success;
+                console.log(response.data.success);
+                if (success) {
+                    navigation.navigate('home');
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+        setVisible(false)
+    };
+
     const [visible, setVisible] = React.useState(false);
     return (
         <View style={styles.container}>
@@ -76,9 +110,9 @@ const HomeScreen = ({ navigation }) => {
                             style={styles.inputStyle}
                             placeholder="Name of machine"
                             size="large"
-                            value={MachineInfo.name}
+                            value={MachineInfo.NameMachine}
                             onChangeText={val => {
-                                setMachineInfo({ ...MachineInfo, name: val });
+                                setMachineInfo({ ...MachineInfo, NameMachine: val });
                             }}
                         />
                         <Input
@@ -86,12 +120,12 @@ const HomeScreen = ({ navigation }) => {
                             style={styles.inputStyle}
                             placeholder="Ip address of machine"
                             size="large"
-                            value={MachineInfo.ip}
+                            value={MachineInfo.IpMachine}
                             onChangeText={val => {
-                                setMachineInfo({ ...MachineInfo, ip: val });
+                                setMachineInfo({ ...MachineInfo, IpMachine: val });
                             }}
                         />
-                        <Button style={styles.addBtn} onPress={() => setVisible(false)}>
+                        <Button style={styles.addBtn} onPress={handleAdd}>
                             ADD
                         </Button>
                     </Card>

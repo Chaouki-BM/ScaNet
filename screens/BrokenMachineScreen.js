@@ -1,30 +1,76 @@
-import React from 'react'
-import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import axios from 'axios';
 const BrokenMachineScreen = () => {
+    const [Brokens, setBrokens] = useState([]);
+    useEffect(() => {
+        loadData();
+    }, []);
+    const loadData = async () => {
+        await axios.get('http://192.168.1.11:5000/Machine/BrokenMachine')
+            .then(function (response) {
+                // handle success
+                setBrokens(response.data.result)
+
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+    }
+
+
+    const handelfixerror = async (broken) => {
+        await axios.patch(`http://192.168.1.11:5000/Machine/FixBroken/${broken._id}`)
+            .then(function (response) {
+                // handle success
+                console.log(response.data.success)
+                if (response.data.success) {
+                    loadData();
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error.message);
+            })
+            .finally(function () {
+                // always executed
+            });
+
+
+    }
+
     return (
         <View style={styles.container}>
-            <View style={styles.menuItem}>
-                <View style={styles.iconContainer}>
-                    <Image
-                        source={require('../assets/Warning.png')}
-                        style={styles.logoStyle}
-                    />
-                </View>
-                <View style={styles.nameContainer}>
-                    <Text style={styles.btnText}>server </Text>
-                    <Text style={styles.btnSubText}>192.168.10.225</Text>
-                </View>
-                <View style={styles.btnContainer}>
-                    <TouchableOpacity style={styles.button}>
-                        <Image
-                            source={require('../assets/Checked.png')}
-                            style={styles.logoStyleDelete}
-                        // onPress={}
-                        />
-                    </TouchableOpacity>
-                </View>
+            {Brokens.map((broken, index) => {
+                return (
+                    <View style={styles.menuItem} key={index}>
+                        <View style={styles.iconContainer}>
+                            <Image
+                                source={require('../assets/Warning.png')}
+                                style={styles.logoStyle}
+                            />
+                        </View>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.btnText}>{broken.NameMachine} </Text>
+                            <Text style={styles.btnSubText}>{broken.IpMachine}</Text>
+                        </View>
+                        <View style={styles.btnContainer}>
+                            <TouchableOpacity style={styles.button} onPress={() => handelfixerror(broken)}>
+                                <Image
+                                    source={require('../assets/Checked.png')}
+                                    style={styles.logoStyleDelete}
 
-            </View>
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
+                )
+            })}
 
         </View>
     )

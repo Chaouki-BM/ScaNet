@@ -2,14 +2,45 @@ import React from 'react'
 import { useState } from 'react';
 import { Image, Text, View, StyleSheet } from 'react-native'
 import { Input, Button } from '@ui-kitten/components';
+import axios from 'axios';
 const LoginScreen = ({ navigation }) => {
     const [loginInfo, setLoginInfo] = useState({
-        email: '',
-        password: '',
+        UserName: '',
+        PassWd: '',
     });
-    const handleLogin = () => {
-        navigation.navigate('home');
+    console.log(loginInfo)
+    const handleLogin = async () => {
+        //console.log(loginInfo);
+        // axios({
+        //     method: 'post',
+        //     url: 'http://192.168.1.15:5000/user/login',
+        //     data: loginInfo
+        // }).then((res) => {
+        //     console.log(res.config.result)
+        // }).catch((e) => {
+        //     console.log(e)
+        // });
+
+        await axios.post('http://192.168.1.11:5000/user/login', loginInfo)
+            .then(function (response) {
+                // handle success
+                success = response.data.success;
+                console.log(response.data.success);
+                if (success) {
+                    navigation.navigate('home');
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+        // navigation.navigate('home');
     };
+
+
     return (
         <View style={styles.container}>
             <View style={{ marginTop: 50, }}>
@@ -22,11 +53,11 @@ const LoginScreen = ({ navigation }) => {
             </View>
             <Input
                 style={styles.inputStyle}
-                placeholder="Email"
+                placeholder="User Name"
                 size="large"
-                value={loginInfo.email}
+                value={loginInfo.UserName}
                 onChangeText={val => {
-                    setLoginInfo({ ...loginInfo, email: val });
+                    setLoginInfo({ ...loginInfo, UserName: val });
                 }}
             />
             <Input
@@ -34,9 +65,9 @@ const LoginScreen = ({ navigation }) => {
                 style={styles.inputStyle}
                 placeholder="Password"
                 size="large"
-                value={loginInfo.password}
+                value={loginInfo.PassWd}
                 onChangeText={val => {
-                    setLoginInfo({ ...loginInfo, password: val });
+                    setLoginInfo({ ...loginInfo, PassWd: val });
                 }}
             />
             <Button size="large" style={styles.loginBtn} onPress={handleLogin}>

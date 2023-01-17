@@ -1,30 +1,77 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Image, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
+import axios from 'axios';
 const MachineLScreen = () => {
+    const [Machines, setMachines] = useState([]);
+    useEffect(() => {
+        loadData();
+    }, []);
+    const loadData = async () => {
+        await axios.get('http://192.168.1.11:5000/Machine/MachineList')
+            .then(function (response) {
+                // handle success
+                setMachines(response.data.result)
+
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+    }
+
+    const handelDelete = async (Machine) => {
+        await axios.delete(`http://192.168.1.11:5000/Machine/DeleteMachine/${Machine._id}`)
+            .then(function (response) {
+                // handle success
+                console.log(response.data.success)
+                if (response.data.success) {
+                    loadData();
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error.message);
+            })
+            .finally(function () {
+                // always executed
+            });
+
+
+    }
+
+
     return (
         <View style={styles.container}>
-            <View style={styles.menuItem}>
-                <View style={styles.iconContainer}>
-                    <Image
-                        source={require('../assets/MachineList.png')}
-                        style={styles.logoStyle}
-                    />
-                </View>
-                <View style={styles.nameContainer}>
-                    <Text style={styles.btnText}>server </Text>
-                    <Text style={styles.btnSubText}>192.168.10.225</Text>
-                </View>
-                <View style={styles.btnContainer}>
-                    <TouchableOpacity style={styles.button}>
-                        <Image
-                            source={require('../assets/DeleteLogo.png')}
-                            style={styles.logoStyleDelete}
-                        // onPress={}
-                        />
-                    </TouchableOpacity>
-                </View>
+            {Machines.map((Machine, index) => {
+                return (
+                    <View style={styles.menuItem} key={index}>
+                        <View style={styles.iconContainer}>
+                            <Image
+                                source={require('../assets/MachineList.png')}
+                                style={styles.logoStyle}
+                            />
+                        </View>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.btnText}>{Machine.NameMachine}</Text>
+                            <Text style={styles.btnSubText}>{Machine.IpMachine}</Text>
+                        </View>
+                        <View style={styles.btnContainer}>
+                            <TouchableOpacity style={styles.button} onPress={() => handelDelete(Machine)}>
+                                <Image
+                                    source={require('../assets/DeleteLogo.png')}
+                                    style={styles.logoStyleDelete}
 
-            </View>
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
+                )
+            })}
+
 
         </View>
     )
